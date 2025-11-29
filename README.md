@@ -1,134 +1,169 @@
-❤️ BlindFreelanceMatch — Private Match (FHEVM dApp)
+# 🤝 BlindFreelanceMatch — Encrypted, Trustless Freelance Matching on FHEVM
 
-A decentralized fully homomorphic encrypted matchmaking dApp on Ethereum (Sepolia testnet) using Zama’s FHEVM protocol.
-Profiles and preferences are encrypted → matched on-chain → only the final match result is decryptable.
-No data leaks. No exposure of personal information.
+**BlindFreelanceMatch** is a fully private freelance–client matchmaking system built on **Zama’s FHEVM**.
+Freelancers and job creators submit **encrypted skillsets, experience levels, and rates/budgets**, and the contract performs a compatibility check **directly on encrypted data**.
+No one — not even blockchain validators — can see profile information or preferences.
 
-⚡ Features
+This project demonstrates how **end-to-end encrypted marketplaces** can run entirely on-chain without revealing sensitive details about users, skills, or salaries.
 
-Publish encrypted user profiles (age, gender, interests, region)
+---
 
-Submit encrypted match preferences
+## ✨ Key Capabilities
 
-Homomorphic computation of match compatibility directly on-chain
+* 🔐 **Confidential Profiles** — all attributes remain encrypted (skills, experience, budgets).
+* 🧠 **Homomorphic Matching** — the smart contract checks skill overlap, level, and affordability using FHE.
+* 🧩 **Bitmask Skill Matching** — matching based on encrypted bitwise skill vectors.
+* 💸 **Budget-Safe Logic** — compares freelancer rates against client budgets without exposing numbers.
+* 🛡 **Granular Access Control** via FHEVM ACL.
+* 🔓 **Private or Public Decryption** based on user intent.
+* 🌐 **Simple Frontend** using Zama Relayer SDK v0.3.0.
 
+---
 
-Zero knowledge of inputs — full privacy preserved
+## 🏗 Tech Stack
 
-Modern dual-column glassmorphic UI built with pure HTML + CSS
+| Layer                | Tools                 |
+| -------------------- | --------------------- |
+| Confidential Compute | Zama FHEVM            |
+| Solidity Library     | `@fhevm/solidity`     |
+| Encryption Flow      | Relayer SDK v0.3.0    |
+| UI                   | Vanilla JS, HTML, CSS |
+| Blockchain           | Sepolia FHEVM Testnet |
+| Dev Tools            | Hardhat, Ethers.js v6 |
 
-Powered by Zama Relayer SDK v0.3.0 and Ethers.js v6
+---
 
-🛠 Quick Start
-Prerequisites
+## 📦 Repository Layout
 
-Node.js ≥ 20
+```
+BlindFreelanceMatch/
+├── contracts/
+│   └── BlindFreelanceMatch.sol
+├── deploy/
+├── frontend/
+│   └── index.html
+├── hardhat.config.js
+└── package.json
+```
 
-npm / yarn / pnpm
+---
 
-MetaMask or any injected Ethereum-compatible wallet
+# 🔐 Smart Contract Summary
 
-Installation
-Clone the repository
-git clone <your-repo-url>
-cd EncryptedCertificationFilter
+BlindFreelanceMatch stores two encrypted entities:
 
-Install dependencies
+### Freelancers
+
+* `skillsMask: euint256`
+* `level: euint8`
+* `rate: euint16`
+
+### Jobs
+
+* `requiredSkillsMask: euint256`
+* `minLevel: euint8`
+* `maxBudget: euint16`
+
+### Matching Criteria (FHE-computed)
+
+```
+skillsOverlap   = freelancer.skillsMask AND job.skillsMask
+hasSkills       = (skillsOverlap != 0)
+levelSatisfied  = freelancer.level >= job.minLevel
+withinBudget    = freelancer.rate <= job.maxBudget
+
+match = hasSkills AND levelSatisfied AND withinBudget
+```
+
+The final encrypted result is stored as **euint8 (0 or 1)** and accessible only to authorized parties.
+
+---
+
+## 🚀 Getting Started
+
+### Install
+
+```bash
+git clone https://github.com/parrotttabitha51-droid/BlindFreelanceMatch
+cd BlindFreelanceMatch
 npm install
+```
 
-Set up environment variables
+### Environment Setup
+
+```bash
 npx hardhat vars set MNEMONIC
 npx hardhat vars set INFURA_API_KEY
-npx hardhat vars set ETHERSCAN_API_KEY   # optional
+npx hardhat vars set ETHERSCAN_API_KEY
+```
 
-Compile Contracts
+### Compile & Test
+
+```bash
 npm run compile
-
-Run Tests
 npm run test
+```
 
-Deploy to Local Network
+---
+
+## 🌐 Deployment
+
+### Local FHEVM Node
+
+```bash
 npx hardhat node
 npx hardhat deploy --network localhost
+```
 
-Deploy to Sepolia FHEVM Testnet
+### Sepolia FHEVM
+
+```bash
 npx hardhat deploy --network sepolia
-npx hardhat verify --network sepolia 
+npx hardhat verify --network sepolia
+```
 
-CONTRACT_ADDRESS: "0xec062E4Ac7878E6556DB0b51306d7Cbe8eF70D44"
+Add your deployment address here after publishing.
 
+---
 
-📁 Project Structure
-tinderdao-private-match/
-├── contracts/
-│   └── BlindFreelanceMatch.sol              # Main FHE-enabled matchmaking contract
-├── deploy/                                  # Deployment scripts
-├── frontend/                                # Web UI (FHE Relayer integration)
-│   └── index.html
-├── hardhat.config.js                        # Hardhat + FHEVM config
-└── package.json                             # Dependencies and npm scripts
+# 🖥 Frontend Encryption Flow
 
-📜 Available Scripts
-Command	Description
-npm run compile	Compile all smart contracts
-npm run test	Run unit tests
-npm run clean	Clean build artifacts
-npm run start	Launch frontend locally
-npx hardhat deploy --network sepolia	Deploy to FHEVM Sepolia testnet
-npx hardhat verify	Verify contract on Etherscan
-🔗 Frontend Integration
+Frontend uses:
 
-The frontend (pure HTML + vanilla JS) uses:
+* `@zama-fhe/relayer-sdk`
+* `ethers.js v6`
 
-@zama-fhe/relayer-sdk v0.3.0
+Flow:
 
-ethers.js v6.13
+1. Connect wallet
+2. Encrypt freelancer/job attributes
+3. Submit encrypted profiles
+4. Trigger encrypted matching
+5. Decrypt privately or make result public
 
-Web3 wallet (MetaMask) connection
+Supports:
+✔ `createEncryptedInput`
+✔ `userDecrypt`
+✔ `publicDecrypt`
 
-Workflow:
+---
 
-Connect wallet
+## 📚 Useful Links
 
-Encrypt & Submit a preference query (desired criteria)
+* Zama FHEVM Docs — [https://docs.zama.ai/protocol](https://docs.zama.ai/protocol)
+* Relayer SDK — [https://docs.zama.ai/protocol/relayer-sdk-guides/](https://docs.zama.ai/protocol/relayer-sdk-guides/)
+* FHEVM Solidity Library — [https://github.com/zama-ai/fhevm-solidity](https://github.com/zama-ai/fhevm-solidity)
+* Ethers v6 — [https://docs.ethers.org/v6/](https://docs.ethers.org/v6/)
 
-Compute match handle via computeMatchHandle()
+---
 
-Make public the result using makeMatchPublic()
+## 🆘 Support
 
-Publicly decrypt → get final result (MATCH ✅ / NO MATCH ❌)
+* GitHub Issues
+* Zama Discord: [https://discord.gg/zama-ai](https://discord.gg/zama-ai)
 
-🧩 FHEVM Highlights
+---
 
-Encrypted types: euint8, euint16
+## 📄 License
 
-Homomorphic operations: FHE.eq, FHE.and, FHE.or, FHE.gt, FHE.lt
-
-Secure access control using FHE.allow & FHE.allowThis
-
-Public decryption enabled with FHE.makePubliclyDecryptable
-
-Frontend encryption/decryption handled via Relayer SDK proofs
-
-📚 Documentation
-
-Zama FHEVM Overview
-
-Relayer SDK Guide
-
-Solidity Library: FHE.sol
-
-Ethers.js v6 Documentation
-
-🆘 Support
-
-🐛 GitHub Issues: Report bugs or feature requests
-
-💬 Zama Discord: discord.gg/zama-ai
- — community help
-
-📄 License
-
-BSD-3-Clause-Clear License
-See the LICENSE
- file for full details.
+**BSD-3-Clause-Clear**
